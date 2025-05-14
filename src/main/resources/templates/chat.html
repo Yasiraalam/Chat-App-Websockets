@@ -10,8 +10,8 @@
 <body>
     <div class="container mt-4">
         <h1 class="text-center">Real-Time Chat Application</h1>
-        <div id="chat"
-             class="border rounded p3 mb-3"
+        <div id="chatSection"
+             class="border rounded p-3 mb-3"
              style="height:300px; overflow-y:auto;">
         </div>
         <div class="input-group mb-3">
@@ -31,9 +31,9 @@
     function setConnected(connected){
       document.getElementById('sendMessage').disabled = !connected;
     }
-
+    let stompClient = null;
     function  connect(){
-      var socket = new SockJS('/ws');
+      var socket = new SockJS('/chat');
       stompClient = Stomp.over(socket);
       stompClient.connect({}, function (frame){
          setConnected(true);
@@ -44,7 +44,7 @@
       }
 
       function showMessage(message){
-            var chat = document.getElementById('chat');
+            var chat = document.getElementById('chatSection');
             var messageElement = document.createElement('div');
             messageElement.textContent  = message.sender + ' : ' + message.content;
             messageElement.className = "border-bottom mb-1";
@@ -52,13 +52,13 @@
             chat.scrollTop = chat.scrollHeight;
       }
        function sendMessage(){
-           var sender = document.getElementById('senderInput').value;
-           var content = document.getElementById('messageInput').value;
+            var sender = document.getElementById('senderInput').value.trim();
+            var content = document.getElementById('messageInput').value.trim();
+            if (!sender || !content) return;
            var chatMessage ={
              sender: sender,
              content: content
            }
-
            stompClient.send("/app/sendMessage", {}, JSON.stringify(chatMessage));
            document.getElementById('messageInput').value = '';
        }
